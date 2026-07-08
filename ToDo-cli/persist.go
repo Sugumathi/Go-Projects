@@ -25,6 +25,11 @@ func Load(filename string) (t Todos, err error) {
 		return
 	}
 
+	if _, err = os.Stat(filename); err != nil {
+		err = fmt.Errorf("Unable to stat the file.")
+		return
+	}
+
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return

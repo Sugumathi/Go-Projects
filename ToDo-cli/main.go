@@ -16,11 +16,12 @@ type cmd_args struct {
 }
 
 func getCmdFlags() (cmd *cmd_args) {
+	cmd = &cmd_args{}
 
 	flag.StringVar(&cmd.add, "Add", "", "Add item to the ToDo list.")
 	flag.StringVar(&cmd.update, "Update", "", "Update an item by its index in ToDo list. Format 'id:New_string'")
-	flag.IntVar(&cmd.del, "Remove", 0, "Specify index of the item to be removed from ToDo list.")
-	flag.IntVar(&cmd.toggle, "Toggle", 0, "Specify index of an item to toggle.")
+	flag.IntVar(&cmd.del, "Remove", -1, "Specify index of the item to be removed from ToDo list.")
+	flag.IntVar(&cmd.toggle, "Toggle", -1, "Specify index of an item to toggle.")
 	flag.BoolVar(&cmd.list, "List", false, "Type List for listing all ToDos.")
 	flag.Parse()
 
@@ -35,7 +36,7 @@ func (c *cmd_args) Execute(todo *Todos) (err error) {
 		todo.AddTask(c.add)
 	case c.del != -1:
 		fmt.Printf("Executing Delete..")
-		todo.RemoveTask(c.del)
+		err = todo.RemoveTask(c.del)
 	case c.update != "":
 		fmt.Printf("Executing Update..")
 		s := strings.Split(c.update, ":")
@@ -43,7 +44,7 @@ func (c *cmd_args) Execute(todo *Todos) (err error) {
 		if err != nil {
 			return err
 		}
-		todo.UpdateTask(s[1], index)
+		err = todo.UpdateTask(s[1], index)
 	case c.toggle != -1:
 		fmt.Printf("Executing Toggle..")
 		err = todo.ToggleTask(c.toggle)
@@ -60,11 +61,12 @@ func main() {
 	todo := Todos{}
 	fmt.Println("This is a simple ToDo CLI application.")
 
-	filename := "todos.jason"
+	filename := "C:\\Users\\acer\\github\\paaru-Go-projects\\Go-Projects\\ToDo-cli\\todos.json"
 	todo, err = Load(filename)
 	if err != nil {
-		fmt.Errorf("Unable to load file '%s'.", filename)
+		err = fmt.Errorf("Unable to load file '%s'.", filename)
 		fmt.Println("Continueing with regular todo tasks...")
+		err = nil
 	}
 
 	cmd := getCmdFlags()
